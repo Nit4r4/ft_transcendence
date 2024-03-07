@@ -23,7 +23,8 @@
 <img width="484" alt="Capture d’écran 2024-03-07 à 13 02 21" src="https://github.com/Nit4r4/ft_transcendence/assets/87270463/3469f869-27aa-41e4-9875-ec95fb5a03c8">
 
 ## Profil
-<img width="1063" alt="Capture d’écran 2024-03-07 à 13 02 52" src="https://github.com/Nit4r4/ft_transcendence/assets/87270463/6323fdee-5c29-4b8a-be92-7d14bf9f384c">
+<img width="1199" alt="Capture d’écran 2024-03-07 à 13 19 00" src="https://github.com/Nit4r4/ft_transcendence/assets/87270463/fa96ca2a-8444-4e4e-8b3f-7e6950d56457">
+<img width="1154" alt="Capture d’écran 2024-03-07 à 13 19 25" src="https://github.com/Nit4r4/ft_transcendence/assets/87270463/eeb306ca-e271-4721-b8cd-24a3d2d2b6e9">
 
 <img width="573" alt="Capture d’écran 2024-03-07 à 13 08 27" src="https://github.com/Nit4r4/ft_transcendence/assets/87270463/7c6e44cb-6aab-409a-9138-7efe712ffff5">
 The Start Plan 💻 @miro
