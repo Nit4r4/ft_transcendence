@@ -24,7 +24,6 @@ def user_directory_path(instance, filename):
 class User(AbstractBaseUser):
     username = models.CharField(max_length=255, primary_key=True)
     nickname = models.CharField(max_length=255, unique=True, null=True)
-    access_token = models.CharField(max_length=255)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     profil_picture = models.ImageField(
@@ -126,7 +125,7 @@ class Team(models.Model):
     #         team.delete()
 
     def __str__(self):
-        return f"Members: {', '.join([user.username for user in self.users.all()])}"
+        return f"Members: {', '.join([user.nickname for user in self.users.all()])}"
 
 
 class Game(models.Model):

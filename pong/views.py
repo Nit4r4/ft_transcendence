@@ -14,7 +14,7 @@ from django.utils import timezone
 from ftt.settings import STATIC_URL
 from .backend import CustomAuthenticationBackend
 from .models import GameTeam, Tournament, User, Team, Game
-from .forms import ProfilPictureForm, UsernameForm
+from .forms import ProfilPictureForm, NicknameForm
 from dotenv import load_dotenv
 import requests
 
@@ -78,8 +78,7 @@ def index(request, page_name=None):
 def home(request):
     ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
     return render(
-        request, "home.html", {
-            "template": "ajax.html" if ajax else "index.html"}
+        request, "home.html", {"template": "ajax.html" if ajax else "index.html"}
     )
 
 
@@ -87,8 +86,7 @@ def home(request):
 def play(request):
     ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
     return render(
-        request, "play.html", {
-            "template": "ajax.html" if ajax else "index.html"}
+        request, "play.html", {"template": "ajax.html" if ajax else "index.html"}
     )
 
 
@@ -99,13 +97,11 @@ def profil(request):
         # Calcul des statistiques du joueur
         user_teams = Team.objects.filter(users=request.user)
         games = Game.objects.filter(teams__in=user_teams)
-        matches = Game.objects.filter(
-            teams__in=user_teams).order_by("-start_time")
+        matches = Game.objects.filter(teams__in=user_teams).order_by("-start_time")
         for match in matches:
             try:
                 match.opponent = (
-                    match.teams.exclude(
-                        users=request.user).first().users.first()
+                    match.teams.exclude(users=request.user).first().users.first()
                 )
                 print(f"Opp: {match.opponent}")
                 match.score = (
@@ -122,16 +118,14 @@ def profil(request):
                 pass
     except ObjectDoesNotExist:
         return render(
-            request, "error.html", {
-                "template": "ajax.html" if ajax else "index.html"}
+            request, "error.html", {"template": "ajax.html" if ajax else "index.html"}
         )
-    username_form = UsernameForm(instance=request.user)
+    nickname_form = NicknameForm(instance=request.user)
     profil_picture_form = ProfilPictureForm(instance=request.user)
 
     matches_played = games.count()
     wins = games.filter(winner__users=request.user).count()
-    win_ratio = round((wins / matches_played) * 100,
-                      2) if matches_played > 0 else 0
+    win_ratio = round((wins / matches_played) * 100, 2) if matches_played > 0 else 0
 
     status = request.user.status
     # user_status = request.user.status
@@ -149,7 +143,7 @@ def profil(request):
             "template": "ajax.html" if ajax else "index.html",
             "profil_picture_url": profil_picture_url,
             "profil_picture_form": profil_picture_form,
-            "username_form": username_form,
+            "nickname_form": nickname_form,
             "matches_played": matches_played,
             "wins": wins,
             "win_ratio": win_ratio,
@@ -161,20 +155,17 @@ def profil(request):
 
 
 @login_required
-def user(request, username=None):
+def user(request, nickname=None):
     ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
     try:
-        user = User.objects.get(username=username)
-        userProfil = User.objects.get(username=request.user)
+        user = User.objects.get(nickname=nickname)
         # Calcul des statistiques du joueur
         user_teams = Team.objects.filter(users=user)
         games = Game.objects.filter(teams__in=user_teams)
-        matches = Game.objects.filter(
-            teams__in=user_teams).order_by("-start_time")
+        matches = Game.objects.filter(teams__in=user_teams).order_by("-start_time")
         for match in matches:
             try:
-                match.opponent = match.teams.exclude(
-                    users=user).first().users.first()
+                match.opponent = match.teams.exclude(users=user).first().users.first()
                 print(f"Opp: {match.opponent}")
                 match.score = (
                     match.gameteam_set.first().score,
@@ -190,14 +181,12 @@ def user(request, username=None):
                 pass
     except ObjectDoesNotExist:
         return render(
-            request, "error.html", {
-                "template": "ajax.html" if ajax else "index.html"}
+            request, "error.html", {"template": "ajax.html" if ajax else "index.html"}
         )
 
     matches_played = games.count()
     wins = games.filter(winner__users=user).count()
-    win_ratio = round((wins / matches_played) * 100,
-                      2) if matches_played > 0 else 0
+    win_ratio = round((wins / matches_played) * 100, 2) if matches_played > 0 else 0
 
     if user.profil_picture:
         profil_picture_url = user.profil_picture.url
@@ -215,32 +204,38 @@ def user(request, username=None):
         "wins": wins,
         "win_ratio": win_ratio,
         "matches": matches,
-        "userProfil": userProfil,
     }
     return render(request, "user.html", context)
 
 
 @login_required
-def username(request):
+def nickname(request):
     if request.method == "GET":
-        return JsonResponse({"username": request.user.username})
+        # return JsonResponse({"username": request.user.username, "nickname": {"nickname": request.user.nickname}})
+        return JsonResponse({"nickname": request.user.nickname})
     elif request.method == "POST":
-        form = UsernameForm(request.POST, instance=request.user)
+        form = NicknameForm(request.POST, instance=request.user)
         if form.is_valid():
             print(form.cleaned_data)
             form.save()
-            return JsonResponse({"message": "Username updated successfully"})
+            return JsonResponse({"message": "Nickname updated successfully"})
         else:
-            return JsonResponse({"error": "New username is required"}, status=400)
+            return JsonResponse({"error": "New nickname is required"}, status=400)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
 @login_required
+def username(request):
+    if request.method == "GET":
+        # return JsonResponse({"username": request.user.username, "nickname": {"nickname": request.user.nickname}})
+        return JsonResponse({"username": request.user.username})
+
+
+@login_required
 def profilPicture(request):
     if request.method == "POST":
-        form = ProfilPictureForm(
-            request.POST, request.FILES, instance=request.user)
+        form = ProfilPictureForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             form.save()
             return HttpResponse()
@@ -257,8 +252,7 @@ def chat(request):
         return render(request, "chat-tmp.html")
     else:
         return render(
-            request, "chat.html", {
-                "template": "ajax.html" if ajax else "index.html"}
+            request, "chat.html", {"template": "ajax.html" if ajax else "index.html"}
         )
 
 
@@ -292,8 +286,8 @@ def lobby(request, gameId=None, invitedPlayer2=None):
     elif request.method == "POST":
         try:
             data = json.loads(request.body)
-            username = data.get("username")
-            user = User.objects.get(username=username)
+            nickname = data.get("nickname")
+            user = User.objects.get(nickname=nickname)
             if user is None:
                 return JsonResponse({"error_message": "user not found"})
             team2 = Team.objects.create()
@@ -301,9 +295,9 @@ def lobby(request, gameId=None, invitedPlayer2=None):
             team2.users.add(user)
             gt = GameTeam(game=game, team=team2)
             gt.save()
-            return JsonResponse({"username": user.username})
+            return JsonResponse({"nickname": user.nickname})
         except ObjectDoesNotExist:
-            return JsonResponse({"error_message": "Missing valid player username"})
+            return JsonResponse({"error_message": "Missing valid player nickname"})
 
 
 @login_required
@@ -353,23 +347,34 @@ def remLobby(request, remoteId=None, invitedPlayer2=None):
     elif request.method == "POST":
         try:
             data = json.loads(request.body)
-            username = data.get("username")
-            user = User.objects.get(username=username)
+            nickname = data.get("nickname")
+            user = User.objects.get(nickname=nickname)
             if user is None:
                 return JsonResponse({"error_message": "user not found"})
-            return JsonResponse({"username": user.username})
+            team = Team.objects.create()
+            team.save()
+            team.users.add(user)
+            gt = GameTeam(game=game, team=team)
+            gt.save()
+            return JsonResponse({"nickname": user.nickname})
         except ObjectDoesNotExist:
-            return JsonResponse({"error_message": "Missing valid player username"})
+            return JsonResponse({"error_message": "Missing valid player nickname"})
 
 
 @login_required
 def remote(request, remoteId=None):
+    ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
     if remoteId is None:
         return redirect(home)
     remote = Game.objects.get(pk=remoteId)
     if remote is None:
         return redirect(home)
-    ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    players = list()
+    for team in remote.teams.all():
+        print(team.users.first())
+        players.append(team.users.first())
+    if request.user not in players:
+        return redirect(home)
     return render(
         request,
         "remote.html",
@@ -395,11 +400,13 @@ def tourLobby(request, tournamentId=None):
     elif request.method == "POST":
         try:
             data = json.loads(request.body)
-            usernames = [value for key, value in data.items()]
-            users = User.objects.filter(username__in=usernames)
+            nicknames = [value for key, value in data.items()]
+            users = User.objects.filter(nickname__in=nicknames).distinct()
+            if users.count() < 4:
+                return JsonResponse({"error_message": "Not enough distinct players"})
             if not users.exists():
                 return JsonResponse(
-                    {"error_message": "No users found with the provided usernames"}
+                    {"error_message": "No users found with the provided nicknames"}
                 )
             tournament = Tournament.objects.get(pk=tournamentId)
             team = Team.objects.create()
@@ -416,8 +423,7 @@ def tourLobby(request, tournamentId=None):
             return JsonResponse(data)
         except ObjectDoesNotExist as e:
             return JsonResponse(
-                {"error_message": str(
-                    e), "invalidUsername": data.get("username")}
+                {"error_message": str(e), "invalidNickname": data.get("nickname")}
             )
 
 
@@ -464,25 +470,22 @@ def tournament_game(request, gameId=None):
                 print(f"Next game {next.pk}")
                 return JsonResponse({"nextGame": next.pk})
             else:
-                return redirect(home)
+                return HttpResponseBadRequest()
                 # return render(request, "win.html", context)
-        return redirect(home)
+        return HttpResponseBadRequest()
 
 
 def logoutview(request):
     if request.user is not None:
         user_logged_in_handler(sender=None, request=request, user=request.user)
     logout(request)
-    return loginview(request)
+    return redirect(loginview)
 
 
 def loginview(request):
-    token = request.headers.get("Authorization")
     if request.user.is_authenticated:
-        # Appel à la fonction pour mettre à jour le statut de l'utilisateur
-        # user_logged_in_handler(sender=None, request=request, user=request.user)
-        # puis Redirection vers la page d'accueil
-        redirect("/home")
+        user_logged_in_handler(sender=None, request=request, user=request.user)
+        redirect(home)
     if request.method == "GET":
         ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
         return render(
@@ -491,24 +494,16 @@ def loginview(request):
             {"template": "ajax.html" if ajax else "index.html"},
         )
     elif request.method == "POST":
-        user = CustomAuthenticationBackend.authenticate(request, token)
-        if user is not None:
-            # user_logged_in_handler(sender=None, request=request, user=user)
-            next = request.POST.get("next")
-            return redirect("/home" if next is None else next)
-        else:
-            load_dotenv()
-            request.session["state"] = base64.b64encode(
-                os.urandom(100)).decode("ascii")
-            auth_url = "{}/oauth/authorize?client_id={}&redirect_uri={}&scope={}&state={}&response_type=code".format(
-                os.getenv("OAUTH_URL"),
-                os.getenv("OAUTH_ID"),
-                requests.utils.quote(
-                    "http://localhost:8000/accounts/callback/"),
-                "public",
-                request.session["state"],  # state
-            )
-            return redirect(auth_url)
+        load_dotenv()
+        request.session["state"] = base64.b64encode(os.urandom(100)).decode("ascii")
+        auth_url = "{}/oauth/authorize?client_id={}&redirect_uri={}&scope={}&state={}&response_type=code".format(
+            os.getenv("OAUTH_URL"),
+            os.getenv("OAUTH_ID"),
+            requests.utils.quote("http://localhost:8000/accounts/callback/"),
+            "public",
+            request.session["state"],
+        )
+        return redirect(auth_url)
 
 
 def callback(request):
@@ -548,19 +543,17 @@ def callback(request):
             )
         user.save()
 
-    user.access_token = access_token
     login(request, user)
-    # return render(request, "callback.html", {"access_token": access_token})
     return redirect(home)
 
 
-def get_user_info(request, username):
+def get_user_info(request, nickname):
     if request.method == "GET":
-        # username = request.GET.get('username')
-        # username = request.GET.get('profil_picture')
-        print("username GET =", username)
+        # nickname = request.GET.get('nickname')
+        # nickname = request.GET.get('profil_picture')
+        print("nickname GET =", nickname)
         try:
-            user = User.objects.get(username=username)
+            user = User.objects.get(nickname=nickname)
             user_info = {
                 "username": user.username,
                 "nickname": user.nickname,
@@ -634,15 +627,15 @@ def getUserData(request):
     return JsonResponse(data)
 
 
-def get_usernames(request, gameId=None):
+def get_nicknames(request, gameId=None):
     if gameId is None:
         return JsonResponse({"error": "Invalid request"})
     game = Game.objects.get(pk=gameId)
-    player1_username = game.teams.first().users.first().username
-    player2_username = game.teams.last().users.first().username
+    player1_nickname = game.teams.first().users.first().nickname
+    player2_nickname = game.teams.last().users.first().nickname
     data = {
-        "player1_username": player1_username,
-        "player2_username": player2_username,
+        "player1_nickname": player1_nickname,
+        "player2_nickname": player2_nickname,
     }
     return JsonResponse(data)
 
@@ -668,9 +661,7 @@ def get_scores(request, gameId=None):
         game.save()
         game.refresh_from_db()
         game.winner = (
-            gameteam1.team
-            if gameteam1.score > gameteam2.score
-            else gameteam2.teagamem
+            gameteam1.team if gameteam1.score > gameteam2.score else gameteam2.teagamem
         )
         game.save()
         data = {
@@ -691,6 +682,7 @@ def get_users(request):
         for user in users:
             user_info = {
                 "username": user.username,
+                "nickname": user.nickname,
                 "profil_picture": user.profil_picture_oauth,
                 "status": user.status,
                 # add other field if necessary
@@ -721,7 +713,8 @@ def getList(request, prefix, type):
                 user_list = []
                 for user in users:
                     user_info = {
-                        "username": user.username,
+                        # "username": user.username,
+                        "nickname": user.nickname,
                         "profil_picture": user.profil_picture_oauth,
                         "status": user.status,  # recuperer le status @test Verena
                         # add other field if necessary
@@ -737,6 +730,7 @@ def getList(request, prefix, type):
                 for friend in friends:
                     friend_info = {
                         "username": friend.username,
+                        "nickname": friend.nickname,
                         "profil_picture": friend.profil_picture_oauth,
                         "status": friend.status,
                     }
@@ -751,6 +745,7 @@ def getList(request, prefix, type):
                 for user in users:
                     user = {
                         "username": user.username,
+                        "nickname": user.nickname,
                     }
                     blocked_list.append(user)
                 context = {"users_blocked": blocked_list}
@@ -761,7 +756,81 @@ def getList(request, prefix, type):
 
 
 @csrf_exempt
-def manageFriend(request, prefix, action, username):
+def manageFriend(request, prefix, action, nickname):
+    print("[manageFriend FUNCTION]")
+    if request.method == "POST":
+        try:
+            user_instance = request.user
+            target = User.objects.get(nickname=nickname)
+
+            if action == "add":
+                if not user_instance.friends.filter(nickname=target.nickname).exists():
+                    user_instance.friends.add(target)
+                    print(f"friend: {nickname} added by {user_instance.nickname}")
+                    print("*****:", user_instance.friends.all())
+                    return JsonResponse(
+                        {"message": "friend have been added"}, status=200
+                    )
+                else:
+                    return JsonResponse(
+                        {"message": "friend already present"}, status=200
+                    )
+            elif action == "remove":
+                if user_instance.friends.filter(nickname=target.nickname).exists():
+                    user_instance.friends.remove(target)
+                    print("*****:", user_instance.friends.all())
+                    print(f"friend: {nickname} removed by {user_instance.nickname}")
+                    return JsonResponse(
+                        {"message": "friend have been removed"}, status=200
+                    )
+                else:
+                    return JsonResponse({"message": "friend doesn't exist"}, status=200)
+
+            elif action == "block":
+                if (
+                    user_instance.friends.filter(nickname=target.nickname).exists()
+                    and not user_instance.blocked_users.filter(
+                        nickname=target.nickname
+                    ).exists()
+                ):
+                    user_instance.blocked_users.add(target)
+                    print(f"friend: {nickname} was blocked by {user_instance.nickname}")
+                    return JsonResponse(
+                        {"message": "friend have been blocked"}, status=200
+                    )
+                else:
+                    return JsonResponse(
+                        {"message": "friend doesn't exist or already blocked"},
+                        status=200,
+                    )
+            elif action == "unblock":
+                if (
+                    user_instance.friends.filter(nickname=target.nickname).exists()
+                    and user_instance.blocked_users.filter(
+                        nickname=target.nickname
+                    ).exists()
+                ):
+                    user_instance.blocked_users.remove(target)
+                    print(
+                        f"friend: {nickname} was unblocked by {user_instance.nickname}"
+                    )
+                    return JsonResponse(
+                        {"message": "friend have been unblocked"}, status=200
+                    )
+                else:
+                    return JsonResponse(
+                        {"message": "friend doesn't exist or not blocked"}, status=200
+                    )
+            else:
+                return JsonResponse({"message": "action not recognize"}, status=200)
+
+        except User.DoesNotExist:
+            print(f"User not found: {nickname}")
+            return JsonResponse({"error": "user not found"}, status=404)
+
+
+@csrf_exempt
+def manageFriendChat(request, prefix, action, username):
     print("[manageFriend FUNCTION]")
     if request.method == "POST":
         try:
@@ -771,8 +840,7 @@ def manageFriend(request, prefix, action, username):
             if action == "add":
                 if not user_instance.friends.filter(username=target.username).exists():
                     user_instance.friends.add(target)
-                    print(
-                        f"friend: {username} added by {user_instance.username}")
+                    print(f"friend: {username} added by {user_instance.username}")
                     print("*****:", user_instance.friends.all())
                     return JsonResponse(
                         {"message": "friend have been added"}, status=200
@@ -785,8 +853,7 @@ def manageFriend(request, prefix, action, username):
                 if user_instance.friends.filter(username=target.username).exists():
                     user_instance.friends.remove(target)
                     print("*****:", user_instance.friends.all())
-                    print(
-                        f"friend: {username} removed by {user_instance.username}")
+                    print(f"friend: {username} removed by {user_instance.username}")
                     return JsonResponse(
                         {"message": "friend have been removed"}, status=200
                     )
@@ -795,15 +862,13 @@ def manageFriend(request, prefix, action, username):
 
             elif action == "block":
                 if (
-                    user_instance.friends.filter(
-                        username=target.username).exists()
+                    user_instance.friends.filter(username=target.username).exists()
                     and not user_instance.blocked_users.filter(
                         username=target.username
                     ).exists()
                 ):
                     user_instance.blocked_users.add(target)
-                    print(
-                        f"friend: {username} was blocked by {user_instance.username}")
+                    print(f"friend: {username} was blocked by {user_instance.username}")
                     return JsonResponse(
                         {"message": "friend have been blocked"}, status=200
                     )
@@ -814,8 +879,7 @@ def manageFriend(request, prefix, action, username):
                     )
             elif action == "unblock":
                 if (
-                    user_instance.friends.filter(
-                        username=target.username).exists()
+                    user_instance.friends.filter(username=target.username).exists()
                     and user_instance.blocked_users.filter(
                         username=target.username
                     ).exists()
@@ -850,7 +914,9 @@ def get_user_conversations(request):
                 {
                     "type": "chat_message",
                     "sender": message.sender.username,
+                    "sender_nickname": message.sender.nickname,
                     "target": message.target.username,
+                    "target_nickname": message.target.nickname,
                     "message": message.message,
                     "timestamp": message.timestamp,
                 }
@@ -858,7 +924,8 @@ def get_user_conversations(request):
             ]
             serialized_conversations.append(
                 {
-                    "name": conversation.participants.username,
+                    "id": conversation.participants.username,
+                    "name": conversation.participants.nickname,
                     "messages": messages,
                     "status": conversation.participants.status,
                     # "unread": conversation.unread,

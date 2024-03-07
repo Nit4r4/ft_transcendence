@@ -99,52 +99,56 @@ export function profil() {
 	// 		});
 	// 	});
 
-	let usernameInput = document.getElementById('id_username');
-	let usernameForm = document.getElementById('username-form');
-	let usernameButton = document.getElementById('modifyUsernameButton');
+	let nicknameInput = document.getElementById('nickname-form');
+	let nicknameForm = document.getElementById('nickname-form');
+	let nicknameButton = document.getElementById('modifyNicknameButton');
 
-	usernameButton.onclick = function (event) {
+	nicknameButton.onclick = function (event) {
 		event.preventDefault();
-		usernameForm.requestSubmit();
+		nicknameForm.requestSubmit();
 	}
 
-	usernameForm.onsubmit = function (event) {
+	nicknameForm.onsubmit = function (event) {
 		event.preventDefault();
-		const form = usernameForm;
+		const form = nicknameForm;
 		const url = new URL(form.action);
 		const formData = new FormData(form);
 		fetch(url, {
 			method: form.method,
 			body: formData,
 			mode: 'same-origin',
-		}).then(response => response.json()).then(data => {
-			console.log("message: " + data.message);
-			localStorage.setItem('savedUsername', newUsername);
-
-			usernameInput.value = newUsername;
-			usernameInput.classList.add('username-updated');
-		}).catch(error => {
-			console.error('Erreur lors de la mise à jour du nom d\'utilisateur :', error);
-		});
+		})
+			.then(response => response.json())
+			.then(data => {
+				console.log("message: " + data.message);
+				localStorage.setItem('savedNickname', data.nickname);
+				nicknameInput.value = data.nickname;
+				nicknameInput.classList.add('nickname-updated');
+			}).catch(error => {
+				console.error('Erreur lors de la mise à jour du nom d\'utilisateur :', error);
+			});
 	}
 
 
-	fetch("/accounts/profil/username")
+	fetch("/accounts/profil/nickname")
 		.then(response => response.json())
 		.then(data => {
-			let savedUsername = localStorage.getItem('savedUsername');
+			let savedNickname = localStorage.getItem('savedNickname');
 			let savedImage = localStorage.getItem('image');
-
-			// let profileImage = document.getElementById('profileImage');
 			let defaultUsername = data.username;
 
-			if (savedUsername && !usernameInput.classList.contains('username-updated')) usernameInput.value = savedUsername;
-			// else if (defaultUsername) usernameInput.value = defaultUsername; // erreur dans la console traiter par creyt
-			else if (defaultUsername && usernameInput) {
-				usernameInput.value = defaultUsername;
+			if (data && data.username && data.nickname !== null) {
+				localStorage.setItem('savedNickname', data.nickname);
+				nicknameInput.value = data.nickname;
+				nicknameInput.classList.add('nickname-updated');
 			}
-
-			// if (savedImage) profileImage.src = savedImage;
+			// else {
+			// 	console.error('Erreur: Aucun utilisateur ou pseudonyme dans la réponse.');
+			// }
+			console.log(data);
+		})
+		.catch(error => {
+			console.error('Erreur lors de la récupération des données du profil :', error);
 		});
 
 	const modifyImageButton = document.getElementById('modifyImageButton');
@@ -156,15 +160,16 @@ export function profil() {
 
 	// POUR LE FORM USER profil et user ?
 	let user = document.getElementById('user');
-	let searched_username = document.getElementById('searchInput');
+	let searched_nickname = document.getElementById('searchInput');
 
-	searched_username.addEventListener("keypress", (e) => {
+	searched_nickname.addEventListener("keypress", (e) => {
 		if (e.key == "Enter")
 			user.click();
 	});
 	user.addEventListener("click", () => {
-		if (searched_username.value)
-			user.href = `/user/${searched_username.value}/`;
+		if (searched_nickname.value)
+			user.href = `/user/${searched_nickname.value}/`;
+		user.setAttribute("data-link", `/user/${searched_nickname.value}/`);
 	});
 
 	document.addEventListener("click", (e) => {
@@ -174,7 +179,7 @@ export function profil() {
 		}
 	});
 
-	searched_username.addEventListener("click", () => {
+	searched_nickname.addEventListener("click", () => {
 
 		console.log("click onsearch");
 		if (visibleList == false) {
@@ -194,27 +199,27 @@ export function profil() {
 	});
 
 	// Function to check if the username is already in the friends list
-	function isFriend(username, friendsList) {
-		return friendsList.includes(username);
+	function isFriend(nickname, friendsList) {
+		return friendsList.includes(nickname);
 	}
 
 	document.getElementById("ladder").addEventListener("click", () => {
 		console.log("click on ladder");
-		const username = searched_username.value.trim(); //@Verena
-		// const currentUser = document.getElementById("current-user").dataset.username;
-		const currentUser = document.getElementById("ladder").dataset.username;
-		if (username) {
+		const nickname = searched_nickname.value.trim(); //@Verena
+		// const currentUser = document.getElementById("current-user").dataset.nickname;
+		const currentUser = document.getElementById("ladder").dataset.nickname;
+		if (nickname) {
 			// Vérifie si l'utilisateur essaie de s'ajouter lui-même
-			if (username === currentUser) {
+			if (nickname === currentUser) {
 				showAlert("You are already your own friend ❤️");
 				return;
 			}
 			// Appel de createListFriends pour obtenir la liste des amis
 			createListFriends().then(friendsList => {
-				if (isFriend(username, friendsList)) {
+				if (isFriend(nickname, friendsList)) {
 					showAlert("Friend already added ❌");
 				} else {
-					manageFriend("add", username);
+					manageFriend("add", nickname);
 					showAlert("Friend added ✅");
 				}
 			}).catch(error => {
@@ -222,7 +227,7 @@ export function profil() {
 				showAlert("Error fetching friends list");
 			});
 		}
-		searched_username.value = "";
+		searched_nickname.value = "";
 	});
 
 	async function fetchTemplate() {
@@ -263,7 +268,7 @@ export function profil() {
 				modalTmp.className = "pseudoBlock d-flex align-items-end"
 				data.friend_list.forEach(friend => {
 					modalTmp.innerHTML = `
-					${friend.username}
+					${friend.nickname}
 					<button class="inviteContact" type="button" class="btn" data-bs-toggle="tooltip"
 						data-bs-placement="top" title="Invite the contact"
 						alt="Button to invite the contact" id="btnInvite"></button>
@@ -277,7 +282,7 @@ export function profil() {
 						manageFriend("block", e.target.closest(".modal-body").innerText);
 					});
 				});
-				return data.friend_list.map(friend => friend.username); // Return the list of usernames
+				return data.friend_list.map(friend => friend.nickname); // Return the list of usernames
 			})
 			.catch(error => {
 				console.error('request error: Fetch', error);
@@ -309,9 +314,9 @@ export function profil() {
 				modalTmp.className = "pseudoBlock d-flex align-items-end"
 				data.users_blocked.forEach(user => {
 
-					//let username = truncUsername(friend.username);
+					//let username = truncNickname(friend.username);
 					modalTmp.innerHTML = `
-						${user.username}
+						${user.nickname}
 						<button class="unblockBtn" type="button" class="btn" data-bs-toggle="tooltip"
 							data-bs-placement="top" title="Unblock the contact"
 							alt="Button to unblock the contact" id="btnUnblock"></button>
@@ -356,10 +361,10 @@ export function profil() {
 
 						//take template
 						var tpl = templateContactList.content.cloneNode(true);
-						tpl.querySelector(".contact").id = `${user.username}-contact-id`;
+						tpl.querySelector(".contact").id = `${user.nickname}-contact-id`;
 						tpl.querySelector("[data-image]").src = user.profil_picture;
-						tpl.querySelector("[data-name]").textContent = truncUsername(user.username);
-						tpl.querySelector("[data-full-name]").textContent = user.username;
+						tpl.querySelector("[data-name]").textContent = truncNickname(user.nickname);
+						tpl.querySelector("[data-full-name]").textContent = user.nickname;
 
 						// Set the status indicator @Verena Status
 						let statusIndicator = tpl.querySelector(".status-indicator");
@@ -395,13 +400,13 @@ export function profil() {
 		});
 	}
 
-	function truncUsername(username) {
+	function truncNickname(nickname) {
 
-		if (username.length > 7) {
-			username = username.substring(0, 7) + "...";
-			console.log(`truncUsername: ${username}`);
+		if (nickname.length > 7) {
+			nickname = nickname.substring(0, 7) + "...";
+			console.log(`truncNickname: ${nickname}`);
 		}
-		return username;
+		return nickname;
 	}
 
 	function handle_click_contact(contact) {
@@ -412,8 +417,8 @@ export function profil() {
 			const contactName = contact.querySelector("[data-full-name]").textContent;
 			const img = contact.querySelector("[data-image]").src;
 			//console.log(`Clic sur le contact ${contactName}. Image source: ${img}`);
-			searched_username.value = contactName;
-			searched_username.focus();
+			searched_nickname.value = contactName;
+			searched_nickname.focus();
 			document.getElementById('listContact').classList.replace("visible-profile-y", "invisible-profile-y");
 			//isVisibleList = false;
 		});
@@ -462,6 +467,12 @@ export function profil() {
 
 	// Fonction pour creer et afficher une alerte personnalisée
 	function showAlert(message) {
+
+		// Crée un élément semi-transparent pour recouvrir la page
+		var overlay = document.createElement('div');
+		overlay.className = 'overlay-alert';
+		document.body.appendChild(overlay);
+
 		// Crée un élément d'alerte
 		var alertElement = document.createElement('div');
 		alertElement.className = 'custom-alert';
@@ -476,6 +487,7 @@ export function profil() {
 		closeButton.textContent = 'X';
 		closeButton.className = 'close-button';
 		closeButton.onclick = function () {
+			document.body.removeChild(overlay);
 			document.body.removeChild(alertElement);
 		};
 
@@ -493,6 +505,7 @@ export function profil() {
 		messageContainer.appendChild(messageElement);
 		alertElement.appendChild(messageContainer);
 		document.body.appendChild(alertElement);
+		document.body.appendChild(overlay);
 	}
 
 };

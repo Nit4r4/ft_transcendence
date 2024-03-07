@@ -157,7 +157,7 @@
 	align-items: right;
 }
 
-/* CHANGER USERNAME PROFIL */
+/* CHANGER NICKNAME PROFIL */
 .modUser {
 	background-image: url('../img/cocher.png');
 	margin-left: 150px !important;
@@ -182,13 +182,13 @@
 
 /*  USER NAME */
 
-.username {
+.nickname {
 	color: var(--bleu) !important;
 	/* width: 210px; */
 	width: 200px;
 }
 
-.night-mode .username {
+.night-mode .nickname {
 	color: black !important;
 }
 
@@ -376,7 +376,7 @@
 	height: 93px;
 }
 
-#modifyUsernameButton {
+#modifyNicknameButton {
 	object-fit: contain;
 }
 
@@ -1068,6 +1068,12 @@
 		background-color: transparent;
 		color: black;
 		font-size: 15px;
+	}
+
+	.status-indicator {
+		display: block;
+		width: 16%;
+		text-align: center;
 	}
 
 	/* .empty {background-color: black; color: black; font-size: 15px;} */

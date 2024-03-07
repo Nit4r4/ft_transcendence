@@ -19,7 +19,7 @@ class Consumer(AsyncJsonWebsocketConsumer):
         if not self.user.is_authenticated:
             await self.close()
             return
-        user = await User.objects.aget(username=self.user.pk)
+        user = await User.objects.aget(nickname=self.user.nickname)
         user.channel_name = self.channel_name
         await user.asave()
         await self.channel_layer.group_add("server", self.channel_name)
@@ -54,13 +54,16 @@ class Consumer(AsyncJsonWebsocketConsumer):
         time_for_all = datetime.now().strftime("%H:%M")
         target = content["target"]
         target_instance = await User.objects.aget(username=target)
+        sender_instance = await User.objects.aget(pk=self.user.pk)
 
         await self.channel_layer.send(
             self.channel_name,
             {
                 "type": "chat_message",
-                "sender": self.user.username,
-                "target": target,
+                "sender": sender_instance.username,
+                "sender_nickname": sender_instance.nickname,
+                "target": target_instance.username,
+                "target_nickname": target_instance.nickname,
                 "message": content["message"],
                 "timestamp": time_for_all,
             },
@@ -75,8 +78,10 @@ class Consumer(AsyncJsonWebsocketConsumer):
                 target_instance.channel_name,
                 {
                     "type": "chat_message",
-                    "sender": self.user.pk,
-                    "target": target,
+                    "sender": sender_instance.username,
+                    "sender_nickname": sender_instance.nickname,
+                    "target": target_instance.username,
+                    "target_nickname": target_instance.nickname,
                     "message": content["message"],
                     "timestamp": time_for_all,
                 },
@@ -93,11 +98,14 @@ class Consumer(AsyncJsonWebsocketConsumer):
         await self.update_or_create_conversation(target_instance, messages)
 
     async def chat_message(self, event):
+        print("send message...")
         await self.send_json(
             {
                 "type": event["type"],
                 "sender": event["sender"],
+                "sender_nickname": event["sender_nickname"],
                 "target": event["target"],
+                "target_nickname": event["target_nickname"],
                 "message": event["message"],
                 "timestamp": event["timestamp"],
             }
@@ -159,9 +167,6 @@ class Consumer(AsyncJsonWebsocketConsumer):
 
         if content["action"] == "#remove":
             print("In remove conversation: ", content["target"])
-
-            target = await User.objects.aget(username=content["target"])
-
             exist = await self.user.conversations.filter(participants=target).aexists()
 
             if exist:
@@ -171,7 +176,7 @@ class Consumer(AsyncJsonWebsocketConsumer):
 
                 await self.user.conversations.aremove(instance)
                 print(
-                    f"{self.user.pk}: Conversation with {target.username} was removed"
+                    f"{self.user.pk}: Conversation with {target.nickname} was removed"
                 )
 
     async def join_game(self, content):

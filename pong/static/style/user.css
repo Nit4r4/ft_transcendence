@@ -31,7 +31,7 @@
 	margin-bottom: 20px;
 }
 
-.usernameUser {
+.nicknameUser {
     font-size: 28px;
     white-space: nowrap;
      /* Empêche le texte de passer à la ligne */
@@ -60,10 +60,14 @@
 
 /* Styles personnalisés pour les petits onglets de la page user*/
 .customUserTab {
-    max-width: 90px; /* Défini la largeur maximale des onglets */
-    white-space: nowrap; /* Empêche le texte de se retourner */
-    overflow: hidden; /* Masque le texte qui dépasse */
-    text-overflow: ellipsis; /* Ajoute des points de suspension à la fin du texte si celui-ci dépasse */
+	max-width: 90px;
+	/* Défini la largeur maximale des onglets */
+	white-space: nowrap;
+	/* Empêche le texte de se retourner */
+	overflow: hidden;
+	/* Masque le texte qui dépasse */
+	text-overflow: ellipsis;
+	/* Ajoute des points de suspension à la fin du texte si celui-ci dépasse */
 	font-size: 13px;
 }
 
