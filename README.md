@@ -9,6 +9,7 @@
 - [Bootstrap](https://getbootstrap.com/docs/5.3/getting-started/introduction/)
 - [React Bootstrap](https://react-bootstrap.github.io/)
 - [Django Livereload](https://livereload.readthedocs.io/en/latest/integrations/django.html)
+- [Notion Informations && Details](https://www.notion.so/nitara/Transcendence-e133637f285b4a81a250b1fa2c5d2e57?pvs=4)
 
 ## Ideas
 - Generate QR code to join lobby/game
@@ -23,8 +24,6 @@
 
 ## Profil
 <img width="1063" alt="Capture d’écran 2024-03-07 à 13 02 52" src="https://github.com/Nit4r4/ft_transcendence/assets/87270463/6323fdee-5c29-4b8a-be92-7d14bf9f384c">
-
-My Notion : https://www.notion.so/nitara/Transcendence-e133637f285b4a81a250b1fa2c5d2e57?pvs=4
 
 <img width="573" alt="Capture d’écran 2024-03-07 à 13 08 27" src="https://github.com/Nit4r4/ft_transcendence/assets/87270463/7c6e44cb-6aab-409a-9138-7efe712ffff5">
 The Start Plan 💻 @miro
