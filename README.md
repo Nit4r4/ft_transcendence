@@ -28,3 +28,4 @@ My Notion : https://www.notion.so/nitara/Transcendence-e133637f285b4a81a250b1fa2
 
 <img width="573" alt="Capture d’écran 2024-03-07 à 13 08 27" src="https://github.com/Nit4r4/ft_transcendence/assets/87270463/7c6e44cb-6aab-409a-9138-7efe712ffff5">
 The Start Plan 💻 @miro
+<img width="910" alt="Capture d’écran 2024-03-07 à 13 10 46" src="https://github.com/Nit4r4/ft_transcendence/assets/87270463/8928dfbc-ba53-42c7-a943-bec15e1af68e">
