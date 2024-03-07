@@ -15,8 +15,17 @@
 - 2vs2 games like a babyfoot
 - 2vs2 games in a square, 1 side = 1 player
 - Funny achievements
+- Night/Color Mode Button
+- Turnament, Quick Play && Remote Play
 
 ## Achievements
-- Win without loosing a single point
-- Scoring against yourself
-- Win with an advantage (ie. the game goes 7-7, 8-7, 9-7)
+<img width="484" alt="Capture d’écran 2024-03-07 à 13 02 21" src="https://github.com/Nit4r4/ft_transcendence/assets/87270463/3469f869-27aa-41e4-9875-ec95fb5a03c8">
+
+## Profil
+<img width="1063" alt="Capture d’écran 2024-03-07 à 13 02 52" src="https://github.com/Nit4r4/ft_transcendence/assets/87270463/6323fdee-5c29-4b8a-be92-7d14bf9f384c">
+
+My Notion : https://www.notion.so/nitara/Transcendence-e133637f285b4a81a250b1fa2c5d2e57?pvs=4
+
+The Start Plan 💻 @miro
+<img width="573" alt="Capture d’écran 2024-03-07 à 13 08 27" src="https://github.com/Nit4r4/ft_transcendence/assets/87270463/7c6e44cb-6aab-409a-9138-7efe712ffff5">
+
